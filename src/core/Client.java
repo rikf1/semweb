@@ -34,6 +34,12 @@ import java.util.Set;
 //import org.json.simple.parser.JSONParser;
 //import org.json.simple.parser.ParseException;
 
+
+
+
+
+import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -44,6 +50,9 @@ import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.util.JSON;
 
 public class Client {
@@ -197,7 +206,13 @@ public class Client {
 		coll = db.getCollection(s);
 	}
 	
-	/********* NOT YET SURE OF METHODS BELOW ****************/
+	public void uploadFile(String fileName)
+	{
+		// TODO 
+	}
+	
+	
+	/********* NOT IN USE ****************/
 	
 	public void importJsonFile(String fileName)
 	{
@@ -252,114 +267,21 @@ public class Client {
 	 */
 	public void sandbox()
 	{
-		
 		// Dummy function
-		//File file = new File("C:/Users/Rik/Desktop/Kattouw/model.dae.json");
-		try {
-			
-			
-	        InputStream is = new FileInputStream("C:/Users/Rik/Desktop/Kattouw/model.dae.json");
-
-	        JSONParser parser = new JSONParser();
-	        
-	        
-	         
-	        Object obj = parser.parse(new FileReader("C:/Users/Rik/Desktop/Kattouw/model.dae.json"));
-	         
-	        JSONObject jsonObject = (JSONObject) obj;
-	        DBObject bson = (DBObject) JSON.parse( jsonObject.toString() );
-	        BasicDBObject doc = new BasicDBObject(bson.toMap());
-			
-			/* JUST NO >>25 MIN
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-			char[] s = new char[230000000];
-			int count = 0;
-			while(bis.available()>0)
-			{
-				int newChar = bis.read();
-				s[count] = (char) newChar;
-				count++;
-				//echo.ln(":: "+(char)bis.read());
-				
-				
-			}
-			echo.ln("All chars in array");
-			
-			String st = "";
-			for(int i=0;i<count;i++)
-			{
-				st += s[i];
-			}
-			System.out.print(st.substring(count-1000)); 
-			
-			//echo.ln(s);
-			 * 
-			 */
-			
-			/* ARRAY VAN CHARS +-10 MIN
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-			char[] s = new char[230000000];
-			int count = 0;
-			int stop = 229000000;
-			while(bis.available()>0)
-			{
-				int newChar = bis.read();
-				s[count] = (char) newChar;
-				count++;
-				//echo.ln(":: "+(char)bis.read());
-				
-				if(count==stop) { 
-					//for(int i = 220000000; i<stop; i++) System.out.print(s[i]); 
-					break;
-				}
-			}
-			for(int i = count-1000; i<=count; i++) System.out.print(s[i]); 
-			//echo.ln(s);
-			*/
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//DBCursor cur = new DBCursor(collection, query, null, preference);
-		//coll = cur.getCollection();
-		/*
-		Set<String> colls = db.getCollectionNames();
-		for(String s : colls)
-		{
-			echo.ln(s);
-		}
-		*/
-	}
-
-	public void sandbox2()
-	{
-		File file = new File("C:/Users/Rik/Desktop/Kattouw/model.dae.json");
-		BufferedReader br;
-		try {
-			br = new BufferedReader(new FileReader(file));
-			String line;
-			while ((line = br.readLine()) != null) {
-			   // process the line.
-				PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("C:/Users/Rik/Desktop/Kattouw/model.dae_new.json", true)));
-				line = line.replace(System.getProperty("line.separator"), "");
-				out.print(line);
-			    out.close();
-			}
-			br.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
+		// Create GridFS instance
+		GridFS gfs = new GridFS(this.db);
+		
+		// Create DBFile instance
+		GridFSDBFile fs = gfs.find(new ObjectId("541ff394991c116baa62017e"));
+		DBObject mData = fs.getMetaData();
+		
+		echo.ln(fs.getId().toString());
+		echo.ln(fs.getFilename());
+		echo.ln(fs.getChunkSize());
+		echo.ln(fs.getUploadDate());
+		echo.ln(fs.getMD5());
+		echo.ln(fs.getLength());
 	}
+
 }

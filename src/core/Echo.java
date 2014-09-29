@@ -8,12 +8,12 @@ package core;
 public class Echo {
 	
 	/**
-	 * Prints string followed by line break
+	 * Prints object followed by line break
 	 * @param s - Text to print
 	 */
-	public void ln(String s)
+	public void ln(Object o)
 	{
-		System.out.println(s);
+		System.out.println(o);
 	}
 
 	/**

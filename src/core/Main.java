@@ -23,6 +23,8 @@ public class Main {
 			//client.sandbox2();
 			//client.importJsonString("{ \"orgType\" : \"xml\", \"location\" : \"Enschede\", \"name\" : \"myBuildingNoRoot\", \"release\" : \"May 2015\",    \"wall\" : [   {            \"name\" : \"north wall\",            \"material\" : \"bricks\"        },        {            \"name\" : \"east wall\",            \"material\" : \"bricks\"        },        {            \"name\" : \"south wall\",            \"material\" : \"bricks\"        },        {            \"name\" : \"west wall\",            \"material\" : \"bricks\"    }    ]}");
 			//client.importFromXmlFile("C:/Users/Rik/Desktop/Kattouw/model.dae.xml");
+			
+			client.sandbox();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

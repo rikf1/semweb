@@ -11,3 +11,6 @@ https://github.com/mongodb/mongo-java-driver
 
 mongo-java driver (API)
 http://api.mongodb.org/java/current/
+
+MongoDB documentation
+http://docs.mongodb.org/manual/
