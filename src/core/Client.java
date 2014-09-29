@@ -38,6 +38,7 @@ import java.util.Set;
 
 
 
+
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -53,6 +54,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
+import com.mongodb.gridfs.GridFSInputFile;
 import com.mongodb.util.JSON;
 
 public class Client {
@@ -206,9 +208,24 @@ public class Client {
 		coll = db.getCollection(s);
 	}
 	
+	/**
+	 * Upload a file to MongoDB (GridFS)
+	 * @param fileName - File to be uploaded
+	 */
 	public void uploadFile(String fileName)
 	{
-		// TODO 
+		// Create GridFS instance
+		GridFS gfs = new GridFS(this.db);
+		
+		try {
+			GridFSInputFile nfile = gfs.createFile(new File(fileName));
+			nfile.save();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//fs = gfs.findOne("testFile.xml");
 	}
 	
 	
@@ -274,7 +291,6 @@ public class Client {
 		
 		// Create DBFile instance
 		GridFSDBFile fs = gfs.find(new ObjectId("541ff394991c116baa62017e"));
-		DBObject mData = fs.getMetaData();
 		
 		echo.ln(fs.getId().toString());
 		echo.ln(fs.getFilename());
@@ -282,6 +298,8 @@ public class Client {
 		echo.ln(fs.getUploadDate());
 		echo.ln(fs.getMD5());
 		echo.ln(fs.getLength());
+		
+		
 	}
 
 }

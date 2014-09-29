@@ -26,3 +26,6 @@ http://api.mongodb.org/java/current/
 
 MongoDB documentation
 http://docs.mongodb.org/manual/
+
+MongoDB documentation: GridFS
+http://docs.mongodb.org/manual/core/gridfs/
