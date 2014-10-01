@@ -210,15 +210,18 @@ public class Client {
 	
 	/**
 	 * Upload a file to MongoDB (GridFS)
-	 * @param fileName - Name of file to be uploaded, or complete path to file, e.g. C:/Users/John/myfile.xml
+	 * @param fileName - Local name of file to be uploaded, or complete path to file, e.g. C:/Users/John/myfile.xml
+	 * @param fileNameDb - Name of file in database
 	 */
-	public void uploadFile(String fileName)
+	public void uploadFile(String fileNameLocal, String fileNameDb)
 	{
 		// Create GridFS instance
 		GridFS gfs = new GridFS(this.db);
 		
 		try {
-			GridFSInputFile nfile = gfs.createFile(new File(fileName));
+			GridFSInputFile nfile = gfs.createFile(new File(fileNameLocal));
+			nfile.setFilename(fileNameDb);
+			nfile.setMetaData(new BasicDBObject());
 			nfile.save();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -230,6 +233,7 @@ public class Client {
 	
 	/**
 	 * Add a key value pair to a file's metadata
+	 * Note: if key already exist, existing value will be overwritten! (TODO: Implement a check for this.)
 	 * @param file - File as GridFSDBFile instance
 	 * @param key - String
 	 * @param value - Object, e.g. String or DBObject
@@ -312,10 +316,10 @@ public class Client {
 		// Create GridFS instance
 		GridFS gfs = new GridFS(this.db);
 		
-	
+		//uploadFile("testFile.xml", "otherName.xml");
 		
 		// Create DBFile instance
-		GridFSDBFile fs = gfs.findOne(new ObjectId("542bfd2c8612c71476bb8ca9"));
+		GridFSDBFile fs = gfs.findOne("otherName.xml");
 		
 		echo.ln("ID: "+fs.getId().toString());
 		echo.ln("Filename: "+fs.getFilename());
@@ -333,6 +337,14 @@ public class Client {
 		fs.setMetaData(doc);
 		fs.save();
 		*/
+		echo.ln("MetaData: "+fs.getMetaData());
+		
+		//fs.setMetaData(new BasicDBObject());
+		//fs.save();
+		
+		this.addMetaDataField(fs, "author", "Rik");
+		this.addMetaDataField(fs, "study", "Master");
+		
 		echo.ln("MetaData: "+fs.getMetaData());
 		
 	}
