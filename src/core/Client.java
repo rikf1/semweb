@@ -210,7 +210,7 @@ public class Client {
 	
 	/**
 	 * Upload a file to MongoDB (GridFS)
-	 * @param fileName - File to be uploaded
+	 * @param fileName - Name of file to be uploaded, or complete path to file, e.g. C:/Users/John/myfile.xml
 	 */
 	public void uploadFile(String fileName)
 	{
@@ -227,6 +227,29 @@ public class Client {
 		
 		//fs = gfs.findOne("testFile.xml");
 	}
+	
+	/**
+	 * Add a key value pair to a file's metadata
+	 * @param file - File as GridFSDBFile instance
+	 * @param key - String
+	 * @param value - Object, e.g. String or DBObject
+	 */
+	public void addMetaDataField(GridFSDBFile file, String key, Object value)
+	{		
+		// Get current MetaData
+		BasicDBObject metaData = (BasicDBObject) file.getMetaData();
+		if(metaData != null) 
+		{
+			metaData.append(key, value);
+			file.setMetaData(metaData);
+			file.save();
+		}
+		else
+		{
+			echo.println("No metadata found. Please add metadata first.");
+		}
+	}
+
 	
 	
 	/********* NOT IN USE ****************/
@@ -289,17 +312,29 @@ public class Client {
 		// Create GridFS instance
 		GridFS gfs = new GridFS(this.db);
 		
+	
+		
 		// Create DBFile instance
-		GridFSDBFile fs = gfs.find(new ObjectId("541ff394991c116baa62017e"));
+		GridFSDBFile fs = gfs.findOne(new ObjectId("542bfd2c8612c71476bb8ca9"));
 		
-		echo.ln(fs.getId().toString());
-		echo.ln(fs.getFilename());
-		echo.ln(fs.getChunkSize());
-		echo.ln(fs.getUploadDate());
-		echo.ln(fs.getMD5());
-		echo.ln(fs.getLength());
+		echo.ln("ID: "+fs.getId().toString());
+		echo.ln("Filename: "+fs.getFilename());
+		echo.ln("Chunksize: "+fs.getChunkSize());
+		echo.ln("Date: "+fs.getUploadDate());
+		echo.ln("MD5: "+fs.getMD5());
+		echo.ln("Length: "+fs.getLength());
 		
+		/*
+		 * ADD METADATA
+		BasicDBObject doc = new BasicDBObject("name", "MongoDB")
+        .append("type", "database")
+        .append("count", 1)
+        .append("info", new BasicDBObject("x", 203).append("y", 102));
+		fs.setMetaData(doc);
+		fs.save();
+		*/
+		echo.ln("MetaData: "+fs.getMetaData());
 		
 	}
-
+	
 }
