@@ -153,8 +153,8 @@ public class Client {
 		} catch (MongoException e) { 
 			if(e.getCode() == -3) {
 				this.talkingToMaster = false;
-				echo.ln("Not talking to master: writes not possible");
-				echo.dot3("Set read preference");
+				echo.println("Not talking to master: writes not possible");
+				echo.print("Set read preference...");
 				ReadPreference preference = ReadPreference.primaryPreferred();
 				db.setReadPreference(preference);
 				echo.ok();
@@ -291,8 +291,6 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//fs = gfs.findOne("testFile.xml");
 	}
 	
 	/**
@@ -322,12 +320,14 @@ public class Client {
 	
 	/********* NOT IN USE ****************/
 	
+	@Deprecated
 	public void importJsonFile(String fileName)
 	{
 		File file = new File(fileName);
 		//dbo = new DBObject();
 	}
 	
+	@Deprecated
 	public void importJsonString(String s)
 	{
 		echo.dot3("Importing JSON");
@@ -341,6 +341,7 @@ public class Client {
 	 * Import the content from an xml file into the database
 	 * @param fileName - Complete path to file, e.g. C:/Users/John/myfile.xml
 	 */
+	@Deprecated
 	@SuppressWarnings({ "static-access", "resource" })
 	public void importFromXmlFile(String fileName)
 	{
@@ -389,12 +390,12 @@ public class Client {
 		// Create DBFile instance
 		GridFSDBFile fs = gfs.findOne("otherName4.xml");
 		
-		echo.ln("ID: "+fs.getId().toString());
-		echo.ln("Filename: "+fs.getFilename());
-		echo.ln("Chunksize: "+fs.getChunkSize());
-		echo.ln("Date: "+fs.getUploadDate());
-		echo.ln("MD5: "+fs.getMD5());
-		echo.ln("Length: "+fs.getLength());
+		echo.println("ID: "+fs.getId().toString());
+		echo.println("Filename: "+fs.getFilename());
+		echo.println("Chunksize: "+fs.getChunkSize());
+		echo.println("Date: "+fs.getUploadDate());
+		echo.println("MD5: "+fs.getMD5());
+		echo.println("Length: "+fs.getLength());
 		
 		/*
 		 * ADD METADATA
@@ -405,7 +406,7 @@ public class Client {
 		fs.setMetaData(doc);
 		fs.save();
 		*/
-		echo.ln("MetaData: "+fs.getMetaData());
+		echo.println("MetaData: "+fs.getMetaData());
 		
 		//fs.setMetaData(new BasicDBObject());
 		//fs.save();
@@ -413,7 +414,7 @@ public class Client {
 		this.addMetaDataField(fs, "author", "Rik");
 		this.addMetaDataField(fs, "study", "Master");
 		
-		echo.ln("MetaData: "+fs.getMetaData());
+		echo.println("MetaData: "+fs.getMetaData());
 		
 	}
 	
