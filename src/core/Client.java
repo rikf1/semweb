@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -39,6 +41,9 @@ import java.util.Set;
 
 
 
+
+
+
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -50,6 +55,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ReadPreference;
+import com.mongodb.ReplicaSetStatus;
 import com.mongodb.ServerAddress;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -64,11 +70,13 @@ public class Client {
 	private DB 				db;		// Current database
 	private DBCollection	coll;	// Current collection in database
 	
-	private boolean			talkingToMaster = true;
+	private boolean			talkingToMaster = false;
+	private boolean			isReplicaSet = false;
 	
 	// Variables for connection to MongoDB
 	private String 	host;
 	private int 	port;
+	private ArrayList<Integer>	ports = new ArrayList<Integer>();
 	private String 	userName;
 	private String 	password;
 	private String 	dbName;		// Name of current database. Necessary for connection.
@@ -76,6 +84,7 @@ public class Client {
 	/**
 	 * Constructor
 	 * @param settingsFile - Create client based on this file containing default settings.
+	 * @param isReplicaSet - True if we want to connect to a replica set, false for single server
 	 * @throws UnknownHostException
 	 * 
 	 * The settings file (config.ini by default) must consists of the following layout:
@@ -85,11 +94,12 @@ public class Client {
 	 * user=yourUserName
 	 * password=yourPassword
 	 */
-	public Client(String settingsFile) throws UnknownHostException 
+	public Client(String settingsFile, boolean isReplicaSet) throws UnknownHostException 
 	{
 		echo = new Echo();
+		this.isReplicaSet = isReplicaSet;
 		
-		echo.dot3("Loading default configuration settings");
+		echo.print("Loading default configuration settings...");
 		try {
 			FileReader file = new FileReader(settingsFile);
 			Scanner scanner = new Scanner(new BufferedReader(file));
@@ -103,15 +113,29 @@ public class Client {
 		}
 		echo.ok();
 		
-		// Configuration file read, so let's connect!
-		connect();
+		// Configuration file is read, so let's connect!
+		if(isReplicaSet && ports.size() > 0)
+		{
+			// Only connect to replica set if we want to AND if we have a port range
+			connectReplicaSet();
+		}
+		else if(port > 0)
+		{
+			// Do we actually have a port to connect to?
+			connectSingle();
+		}
+		else
+		{
+			// Port (range) configuration was not set properly
+			echo.fail();
+		}
 	}
 	
 	/**
-	 * Connect client to the server
+	 * Connect client to a single server
 	 */
-	public void connect() {
-		echo.dot3("Connecting to server");
+	public void connectSingle() {
+		echo.print("Connecting to single server...");
 		try {
 			client = new MongoClient(new ServerAddress(this.host, this.port), Arrays.asList(MongoCredential.createMongoCRCredential(this.userName, this.dbName, this.password.toCharArray())));
 		} catch (UnknownHostException e) {
@@ -134,18 +158,54 @@ public class Client {
 				ReadPreference preference = ReadPreference.primaryPreferred();
 				db.setReadPreference(preference);
 				echo.ok();
+			} else {
+				this.talkingToMaster = true;
 			}
 		
 		}
 	}
 	
 	/**
+	 * Connect to a replica set
+	 */
+	public void connectReplicaSet()
+	{
+		echo.print("Connecting to replica set...");
+		try
+		{
+			// Put all servers in an arraylist
+			ArrayList<ServerAddress> servers = new ArrayList<ServerAddress>();
+			for(int p : this.ports)
+			{
+				servers.add(new ServerAddress(this.host, p));
+			}
+			// Create client
+			client = new MongoClient(	servers, 
+										Arrays.asList(
+											MongoCredential.createMongoCRCredential(
+												this.userName, 
+												this.dbName, 
+												this.password.toCharArray()
+											)
+										)
+									);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// Logged in, now select default database
+		setDatabase(this.dbName);
+		echo.ok();
+	}
+	
+	/**
 	 * Checks whether we are communicating with the primary (master) server.
-	 * @return true if talking to master, false otherwise
+	 * @return true if talking to master or replica set, false otherwise
 	 */
 	public boolean talkingToMaster()
 	{
-		return this.talkingToMaster;
+		return this.isReplicaSet ? this.isReplicaSet : this.talkingToMaster;
 	}
 	
 	/**
@@ -166,7 +226,11 @@ public class Client {
 				break;
 			case "password": this.password = setting[1];
 				break;
-			default: echo.ln("Unknown setting: "+setting[0]);
+			case "ports": 
+				String[] s0 = setting[1].split(",");
+				for(String s1 : s0)	{ this.ports.add(Integer.parseInt(s1)); }
+				break;
+			default: echo.println("Unknown setting: "+setting[0]);
 				break;
 		}	
 	}
@@ -308,18 +372,22 @@ public class Client {
 
 	/**
 	 * Dummy function for testing.
+	 * @throws UnknownHostException 
 	 */
-	public void sandbox()
+	public void sandbox() throws UnknownHostException
 	{
 		// Dummy function
 		
 		// Create GridFS instance
 		GridFS gfs = new GridFS(this.db);
 		
-		//uploadFile("testFile.xml", "otherName.xml");
+		ReplicaSetStatus rss = client.getReplicaSetStatus();
+		echo.println("RSS: "+rss);
+		
+		//uploadFile("testFile.xml", "otherName4.xml");
 		
 		// Create DBFile instance
-		GridFSDBFile fs = gfs.findOne("otherName.xml");
+		GridFSDBFile fs = gfs.findOne("otherName4.xml");
 		
 		echo.ln("ID: "+fs.getId().toString());
 		echo.ln("Filename: "+fs.getFilename());
