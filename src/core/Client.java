@@ -44,6 +44,20 @@ import java.util.Set;
 
 
 
+
+
+
+
+
+
+
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -375,7 +389,7 @@ public class Client {
 	 * Dummy function for testing.
 	 * @throws UnknownHostException 
 	 */
-	public void sandbox() throws UnknownHostException
+	public void sandbox2() throws UnknownHostException
 	{
 		// Dummy function
 		
@@ -384,11 +398,13 @@ public class Client {
 		
 		ReplicaSetStatus rss = client.getReplicaSetStatus();
 		echo.println("RSS: "+rss);
+		echo.println("Primary: "+rss.getMaster());
 		
 		//uploadFile("testFile.xml", "otherName4.xml");
 		
 		// Create DBFile instance
 		GridFSDBFile fs = gfs.findOne("otherName4.xml");
+		echo.println("Query:"+fs.toString());
 		
 		echo.println("ID: "+fs.getId().toString());
 		echo.println("Filename: "+fs.getFilename());
@@ -415,6 +431,74 @@ public class Client {
 		this.addMetaDataField(fs, "study", "Master");
 		
 		echo.println("MetaData: "+fs.getMetaData());
+		
+		echo.println("-------- QUERY TEST -------");
+		// The awesome query
+		BasicDBObject query = new BasicDBObject("filename", "otherName4.xml").append("chunkSize", 261120);
+		
+		// Did we already query this before?
+		this.setCollection("qr.queries");
+		DBObject alreadyAsked =this.coll.findOne(query);
+		if(alreadyAsked != null) {
+			echo.println("Query asked before!");
+		}
+		
+		// Execute query
+		this.setCollection("fs.files");
+		DBCursor cursor = this.coll.find(query);
+		try {
+			while (cursor.hasNext())
+			{
+				echo.println(cursor.next());
+			}
+		} finally {
+			cursor.close();
+			
+		}
+		
+		// Put query into collection
+		this.setCollection("qr.queries");
+		this.coll.insert(query);
+		
+	}
+	
+	public void sandbox() {
+		echo.println("-------- SOLR TEST ---------");
+		
+		HttpSolrServer server = new HttpSolrServer("http://solrctw.cloudapp.net:8080/solr");
+		
+		
+		try {
+		for(int i=1;i<4;i++){
+			SolrInputDocument doc = new SolrInputDocument();
+			doc.addField("cat", "film");
+			doc.addField("id", "film-"+i);
+			doc.addField("name", "The Film of the Hobbit part "+i);
+		
+			server.add(doc);
+		}
+		server.commit();
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery("Hobbit");
+		
+		try {
+			QueryResponse response = server.query(query);
+			SolrDocumentList results = response.getResults();
+			for (int i=0;i<results.size();i++){
+				echo.println(results.get(i));
+			}
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
