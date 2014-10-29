@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/noggit-0.5.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15-140.jar"/>
+	<classpathentry kind="lib" path="lib/sshj-0.10.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

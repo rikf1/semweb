@@ -51,11 +51,24 @@ import java.util.Set;
 
 
 
+
+
+
+
+import java.util.concurrent.TimeUnit;
+
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.common.IOUtils;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.bson.types.ObjectId;
@@ -389,7 +402,7 @@ public class Client {
 	 * Dummy function for testing.
 	 * @throws UnknownHostException 
 	 */
-	public void sandbox2() throws UnknownHostException
+	public void sandbox() throws UnknownHostException
 	{
 		// Dummy function
 		
@@ -462,12 +475,13 @@ public class Client {
 		
 	}
 	
-	public void sandbox() {
+	public void sandbox3() {
 		echo.println("-------- SOLR TEST ---------");
 		
 		HttpSolrServer server = new HttpSolrServer("http://solrctw.cloudapp.net:8080/solr");
 		
 		
+		/*
 		try {
 		for(int i=1;i<4;i++){
 			SolrInputDocument doc = new SolrInputDocument();
@@ -482,12 +496,32 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		
+		GridFS gfs = new GridFS(this.db);
 		
-		
+		try {
+			File file = new File("testFile.xml");
+			DocumentObjectBinder binder = new DocumentObjectBinder();
+			//SolrInputDocument doc = binder.toSolrInputDocument(file); werkt niet
+			SolrInputDocument doc = new SolrInputDocument();
+			doc.addField("id", "testFile.xml");
+			doc.addField("content", file.getAbsoluteFile());
+			server.add(doc);
+			server.commit();
+			/*
+			GridFSInputFile nfile = gfs.createFile(new File("testFile.xml"));
+			nfile.setFilename("otherName5.xml");
+			nfile.setMetaData(new BasicDBObject());
+			nfile.save();
+			*/
+		} catch (IOException | SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		SolrQuery query = new SolrQuery();
-		query.setQuery("Hobbit");
+		query.setQuery("HERO");
 		
 		try {
 			QueryResponse response = server.query(query);
@@ -500,6 +534,71 @@ public class Client {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void sandbox4() {
+		
+
+				SSHClient ssh = new SSHClient();
+		        
+		        try {
+		        	
+			        //ssh.loadKnownHosts();
+		        	ssh.addHostKeyVerifier("3a:08:36:1d:b0:09:c1:80:dc:7f:5d:82:8a:35:ca:04");
+
+			        ssh.connect("solrctw.cloudapp.net");
+			        ssh.authPassword("azureuser", "UTR!k91Jelle");
+		           	//ssh.authPublickey(System.getProperty("azureuser","UTR!k91Jelle"));
+		            Session session = ssh.startSession();
+		            try {
+		            	/*
+		                Command cmd = session.exec("ping -c 1 google.com");
+		                System.out.println(IOUtils.readFully(cmd.getInputStream()).toString());
+		                cmd.join(5, TimeUnit.SECONDS);
+		                System.out.println("\n** exit status: " + cmd.getExitStatus());
+		                */
+		                
+		                String commands = "";
+		            	commands += "mongo mongodbctw.cloudapp.net:27019;";
+		            	commands += "ls;";
+		            	commands += "sudo wget http://www.rikvanoutersterp.nl/semweb/monitor3.xml;";
+		            	commands += "ls;";
+		            	Command cmd = session.exec(commands);
+		                echo.println(IOUtils.readFully(cmd.getInputStream()).toString());
+		                cmd.join(5, TimeUnit.SECONDS);
+		                
+		                System.out.println("\n** exit status: " + cmd.getExitStatus());
+		            } finally {
+		                session.close();
+		            }
+		            session = ssh.startSession();
+		            try {
+		            	String commands = "";
+		            	commands += "cd /var/lib/tomcat6/solr/solr-4.10.1/example/exampledocs;";
+		            	commands += "ls;";
+		            	commands += "sudo wget http://www.rikvanoutersterp.nl/semweb/monitor3.xml;";
+		            	commands += "ls;";
+		            	Command cmd = session.exec(commands);
+		                echo.println(IOUtils.readFully(cmd.getInputStream()).toString());
+		                cmd.join(5, TimeUnit.SECONDS);
+		            } finally {
+		            	session.close();
+		            }
+		        } catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+		            try {
+						ssh.disconnect();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		        }
+		    
+
+		
+
 	}
 	
 }
