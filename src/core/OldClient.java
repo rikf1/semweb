@@ -90,7 +90,8 @@ import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import com.mongodb.util.JSON;
 
-public class Client {
+@Deprecated
+public class OldClient {
 	
 	private Echo 			echo;	// Print system
 	private MongoClient 	client;	// MongoDB client
@@ -121,7 +122,7 @@ public class Client {
 	 * user=yourUserName
 	 * password=yourPassword
 	 */
-	public Client(String settingsFile, boolean isReplicaSet) throws UnknownHostException 
+	public OldClient(String settingsFile, boolean isReplicaSet) throws UnknownHostException 
 	{
 		echo = new Echo();
 		this.isReplicaSet = isReplicaSet;
@@ -385,7 +386,7 @@ public class Client {
 				count++;
 				if(count%1000==0) { echo.ln(""+count); }
 			}
-			
+			/*
 			// Translate the xml consisting String to JSON (can this be done in fewer steps?)
 			XML translator = new XML();
 			JSONObject json = translator.toJSONObject(xml);
@@ -393,6 +394,7 @@ public class Client {
 	        BasicDBObject doc = new BasicDBObject(bson.toMap());
 			coll.insert(doc);
 			echo.ok();
+			*/
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

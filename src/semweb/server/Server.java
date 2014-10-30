@@ -1,10 +1,4 @@
-/**
- * This file belongs to the JAR on the Solr server.
- * It can be called to download a GridFS file.
- * @author Rik
- */
-
-package solr;
+package semweb.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,21 +10,23 @@ import org.bson.types.ObjectId;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
-import com.mongodb.ReplicaSetStatus;
 import com.mongodb.ServerAddress;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 
-@Deprecated
-public class Downloader {
+/**
+ * This class handles the downloading of files to the Solr server.
+ * @author Rik
+ *
+ */
+
+public class Server {
+
+	public Server(String[] args) {
+		
+	}
 	
-	//private static MongoClient client;
-	
-	/**
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public void snadbox() {
 		if(0 == args.length || args.length < 6 ) {
 			System.out.println("Not enough arguments");
 		}
@@ -120,5 +116,4 @@ public class Downloader {
 			}
 		}
 	}
-
 }

@@ -5,6 +5,7 @@
 
 package core;
 
+@Deprecated
 public class Echo {
 	
 	/**

@@ -6,6 +6,7 @@ package core;
 
 import java.net.UnknownHostException;
 
+@Deprecated
 public class Main {
 	
 	public static void main(String[] args) {
@@ -15,7 +16,7 @@ public class Main {
 		//echo.ln("Do you want to load the default configuration settings? (Y/N)");
 		//echo.ln("y");
 		try {
-			Client client = new Client("config.ini", true);
+			OldClient client = new OldClient("config.ini", true);
 			client.sandbox();
 			
 			//echo.ln("Talking to master: "+client.talkingToMaster());
