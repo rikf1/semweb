@@ -38,15 +38,31 @@ public class Core {
 	private QueryHandler 	queryHandler;
 	private SolrHandler		solrHandler;
 	
+	/**
+	 * Create instance with default configuration file.
+	 */
 	public Core()  {
 		this.loadConfig("config.ini");
+		this.connect();
 	}
 	
+	/**
+	 * Create instance with custom configuration file.
+	 * @param configFile - Filename if in same folder, complete path otherwise.
+	 */
 	public Core(String configFile) {
 		this.loadConfig(configFile);
 		this.connect();
 	}
 	
+	/**
+	 * Create instance with configuration given by arguments.
+	 * @param host - URL to MongoDB replica set.
+	 * @param ports - Ports of MongoDB replica set.
+	 * @param userName - Username of user.
+	 * @param password - Corresponding password of user.
+	 * @param dbName - Database the user want to authenticate for.
+	 */
 	public Core(String host, ArrayList<Integer> ports, String userName, String password, String dbName) {
 		// Set variables
 		this.host = host;
@@ -58,13 +74,20 @@ public class Core {
 		this.connect();
 	} 
 	
+	/**
+	 * Load configuration from a given file.
+	 * @param configFile - Filename if in same folder, absolute path otherwise.
+	 */
 	private void loadConfig(String configFile) {
 		try {
+			// Load the file
 			FileReader file = new FileReader(configFile);
 			Scanner scanner = new Scanner(new BufferedReader(file));
+			
+			// Loop through every line (i.e. every setting)
 			while(scanner.hasNext())
 			{
-				String[] settings = configFile.split("=");
+				String[] settings = scanner.next().split("=");
 				switch(settings[0])
 				{
 					case "host": this.host = settings[1];
@@ -101,7 +124,7 @@ public class Core {
 			{
 				servers.add(new ServerAddress(this.host, p));
 			}
-			// Create client
+			// Create MongoClient
 			this.mongoclient = new MongoClient(	servers, 
 												Arrays.asList(
 													MongoCredential.createMongoCRCredential(
@@ -146,6 +169,10 @@ public class Core {
 		return this.db;
 	}
 	
+	public String getUsername() {
+		return this.userName;
+	}
+	
 	/**
 	 * Close the connection to MongoDb
 	 */
@@ -154,18 +181,34 @@ public class Core {
 		this.mongoclient.close();
 	}
 
+	/**
+	 * Get instance of DbHandler
+	 * @return
+	 */
 	public DbHandler getDbHandler() {
 		return this.dbHandler;
 	}
 
+	/**
+	 * Get instance of QueryHandler
+	 * @return
+	 */
 	public QueryHandler getQueryHandler() {
 		return this.queryHandler;
 	}
 
+	/**
+	 * Get instance of SolrHandler
+	 * @return
+	 */
 	public SolrHandler getSolrHandler() {
 		return this.solrHandler;
 	}
 
+	/**
+	 * Get GridFS instance
+	 * @return
+	 */
 	public GridFS getGridFS() {
 		return this.gridfs;
 	}

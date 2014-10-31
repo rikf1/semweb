@@ -9,7 +9,6 @@ config.ini
 In order to work properly you have to place a text file named config.ini in the root folder with the following layout (sequence may differ):
 <pre>
 host=
-port=
 ports=
 database=
 user=

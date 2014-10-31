@@ -6,21 +6,25 @@ import semweb.server.Server;
 
 public class Main {
 	
-	public static void main() {
+	/**
+	 * Main without arguments
+	 */
+	/*public static void main() {
 		// Initiate Client
-		Client client = new Client();
-	}
-	
-	public static void main(String configFile) {
-		// Initiate Client
-		Client client = new Client(configFile);
-	}
+		new Client();
+	}*/
 
+	/**
+	 * Main with arguments, either 1 or 6 or an undefined amount with the first being -help
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		if(args.length == 1 && args[0] != "help") {
+		if(args.length == 0) {
+			new Client();
+		} else if(args.length == 1 && args[0] != "-help") {
 			// Settings loaded through custom configuration file
 			// Client initiated
-			Client client = new Client(args[0]);
+			new Client(args[0]);
 		} else if(args.length == 6 && args[0] != "-help") {
 			// All settings given as argument
 			// Server initiated

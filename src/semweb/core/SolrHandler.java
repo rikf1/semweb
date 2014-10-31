@@ -14,7 +14,7 @@ import org.apache.solr.common.SolrDocumentList;
 
 public class SolrHandler {
 	
-	private Core core;
+	private Core core; // TODO do we need this?
 	private HttpSolrServer solrServer;
 	
 	public SolrHandler(Core core) {

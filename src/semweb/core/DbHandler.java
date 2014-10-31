@@ -24,7 +24,7 @@ public class DbHandler {
 	/**
 	 * Upload a file to MongoDB (GridFS)
 	 * @param fileName - Local name of file to be uploaded, or complete path to file, e.g. C:/Users/John/myfile.xml
-	 * @param fileNameDb - Name of file in database
+	 * @param fileNameDb - Name of file in MongoDB
 	 */
 	public void uploadFile(String fileNameLocal, String fileNameDb)
 	{
