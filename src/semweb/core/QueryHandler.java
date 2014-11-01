@@ -1,5 +1,9 @@
 package semweb.core;
 
+import java.util.List;
+
+import org.bson.types.ObjectId;
+
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
 
@@ -18,13 +22,20 @@ public class QueryHandler {
 	}
 	
 	/**
-	 * Get a file from the database.
-	 * Note, this is a GridFSDBFile object, we are not downloading the actual file!
+	 * Get a GridFSDBFile object of a file from the database.
 	 * @param fileName
 	 * @return
 	 */
 	public GridFSDBFile getFileByName(String fileName) {
 		return core.getGridFS().findOne(fileName);
+	}
+	
+	public GridFSDBFile getFileByObjectId(ObjectId objectId) {
+		return core.getGridFS().findOne(objectId);
+	}
+	
+	public List<GridFSDBFile> getFileListByQuery(DBObject query) {
+		return core.getGridFS().find(query);
 	}
 	
 	/**
