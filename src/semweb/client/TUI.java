@@ -1,10 +1,22 @@
 package semweb.client;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.common.IOUtils;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
+
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -29,6 +41,8 @@ public class TUI {
 	private static final String UPLOADFILE = "upload";
 	private static final String SEARCHQUERY = "query";
 	private static final String MDQUERY = "mdsearch";
+	private static final String TRANSFERSOLR = "transfer";
+	private static final String SEARCHSOLR = "search";
 	
 	private Client client;
 	private Scanner input;
@@ -68,6 +82,8 @@ public class TUI {
 		this.printMenuItem(UPLOADFILE, "Upload a file into the database");
 		this.printMenuItem(SEARCHQUERY, "Search for a file using a query");
 		this.printMenuItem(MDQUERY, "Search through metadata");
+		this.printMenuItem(TRANSFERSOLR, "Download a file from MongoDB to Solr");
+		this.printMenuItem(SEARCHSOLR, "Search through file using Solr");
 		this.printMenuItem(EXIT, "Exit this program");
 		this.println("");
 	}
@@ -115,12 +131,74 @@ public class TUI {
 			case MDQUERY:
 				this.metaDataQuery();
 				break;
+			case TRANSFERSOLR:
+				this.transferToSolr();
+				break;
+			case SEARCHSOLR:
+				this.searchSolr();
+				break;
 			default:
 				this.println("Unknown command. Try again or enter the help command to obtain the menu.");
 				break;
 		}
 	}
 	
+	private void searchSolr() {
+		String input = this.readUserInput("Enter query:");
+		SolrDocumentList results = this.client.getCore().getSolrHandler().searchFile(input);
+		
+		for (int i=0;i<results.size();i++){
+			this.println(results.get(i));
+		}
+	}
+
+	private void transferToSolr() {
+		if(this.file == null) {
+			this.println("No file selected.");
+		} else {
+			/*
+			SSHClient ssh = new SSHClient();
+			try {
+				ssh.addHostKeyVerifier(this.client.getCore().getSolrHandler().getServerKey());
+		        ssh.connect(this.client.getCore().getSolrHandler().getAddress());
+			    ssh.authPassword(this.client.getCore().getSolrHandler().getServerUser(), this.client.getCore().getSolrHandler().getServerPass());
+		        Session session = ssh.startSession();
+		        
+				try {
+			        String commands = "";
+			        commands += "cd "+this.client.getCore().getSolrHandler().getServerPath()+";";
+			        commands += "java -jar semweb.jar";
+			        // System.out.println("[host] [ports] [database] [user] [password] [fileId]");
+			        commands += " "+this.client.getCore().getHost();
+			        commands += " "+this.client.getCore().getPorts();
+			        commands += " "+this.client.getCore().getDatabase().getName();
+			        commands += " "+this.client.getCore().getUsername();
+			        commands += " "+this.client.getCore().getPassword();
+			        commands += " "+this.file.getId();
+			        commands += ";";
+			        
+			        Command cmd = session.exec(commands);
+		            this.println(IOUtils.readFully(cmd.getInputStream()).toString());
+		            cmd.join(10, TimeUnit.SECONDS);
+	                //System.out.println("\n** exit status: " + cmd.getExitStatus());
+	            } finally {
+	                session.close();
+	            }
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+	            try {
+					ssh.disconnect();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	        }
+	        */
+			this.println(this.client.getCore().getSolrHandler().transferToSolr(this.file.getId()));
+		}
+	}
+
+
 	/**
 	 * Build a query with key-value pairs.
 	 * For now everything has to match exactly. TODO

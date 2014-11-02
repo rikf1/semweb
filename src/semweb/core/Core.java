@@ -28,6 +28,7 @@ public class Core {
 	// Variables for connection to MongoDB
 	private String 	host;
 	private ArrayList<Integer>	ports = new ArrayList<Integer>();
+	private String  portsString;
 	private String 	userName;
 	private String 	password;
 	private String 	dbName;		// Name of current database. Necessary for connection.
@@ -36,14 +37,13 @@ public class Core {
 	
 	private DbHandler		dbHandler;
 	private QueryHandler 	queryHandler;
-	private SolrHandler		solrHandler;
+	private SolrHandler		solrHandler;	// Only usable for clients
 	
 	/**
 	 * Create instance with default configuration file.
 	 */
 	public Core()  {
-		this.loadConfig("config.ini");
-		this.connect();
+		this.run("config.ini");
 	}
 	
 	/**
@@ -51,8 +51,22 @@ public class Core {
 	 * @param configFile - Filename if in same folder, complete path otherwise.
 	 */
 	public Core(String configFile) {
+		this.run(configFile);
+	}
+	
+	/**
+	 * 
+	 * @param configFile
+	 */
+	private void run(String configFile) {
+		// Make sure to create the Solr handler before we set its variables using the configuration file
+		this.solrHandler = new SolrHandler(this);
+		
 		this.loadConfig(configFile);
 		this.connect();
+		
+		// Now we can safely connect the Solr handler
+		this.getSolrHandler().connect();
 	}
 	
 	/**
@@ -63,7 +77,7 @@ public class Core {
 	 * @param password - Corresponding password of user.
 	 * @param dbName - Database the user want to authenticate for.
 	 */
-	public Core(String host, ArrayList<Integer> ports, String userName, String password, String dbName) {
+	public Core(String host, ArrayList<Integer> ports, String dbName, String userName, String password) {
 		// Set variables
 		this.host = host;
 		this.ports = ports;
@@ -99,8 +113,23 @@ public class Core {
 					case "password": this.password = settings[1];
 						break;
 					case "ports": 
+						this.portsString = settings[1];
 						String[] s0 = settings[1].split(",");
 						for(String s1 : s0)	{ this.ports.add(Integer.parseInt(s1)); }
+						break;
+					case "solrServer": this.getSolrHandler().setAddress(settings[1]);
+						break;
+					case "solrPort":  this.getSolrHandler().setPort(settings[1]);
+						break;
+					case "solrDir": this.getSolrHandler().setDir(settings[1]);
+						break;
+					case "solrServerUser": this.getSolrHandler().setServerUser(settings[1]);
+						break;
+					case "solrServerPass": this.getSolrHandler().setServerPass(settings[1]);
+						break;
+					case "solrServerPath": this.getSolrHandler().setServerPath(settings[1]);
+						break;
+					case "solrServerKey": this.getSolrHandler().setServerKey(settings[1]);
 						break;
 					default:
 						break;
@@ -144,10 +173,9 @@ public class Core {
 		// Create GridFS instance
 		this.gridfs = new GridFS(this.db);
 		
-		// Create handlers
+		// Create remaining handlers
 		this.dbHandler = new DbHandler(this);
 		this.queryHandler = new QueryHandler(this);
-		this.solrHandler = new SolrHandler(this);
 	}
 	
 	/**
@@ -211,6 +239,18 @@ public class Core {
 	 */
 	public GridFS getGridFS() {
 		return this.gridfs;
+	}
+
+	public String getHost() {
+		return this.host;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public String getPorts() {
+		return this.portsString;
 	}
 
 }

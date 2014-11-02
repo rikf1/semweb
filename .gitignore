@@ -15,3 +15,5 @@ hs_err_pid*
 config.ini
 /bin/
 testFile.xml
+semweb.jar
+/exampledocs/
