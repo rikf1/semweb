@@ -13,6 +13,13 @@ ports=
 database=
 user=
 password=
+solrServer=
+solrPort=
+solrDir=
+solrServerUser=
+solrServerPass=
+solrServerPath=
+solrServerKey=
 </pre>
 
 Quick links

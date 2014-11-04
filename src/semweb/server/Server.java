@@ -39,6 +39,9 @@ public class Server {
 		this.run();
 	}
 	
+	/**
+	 * Downloads the file with a given Id from MongoDB to the folder exampledocs.
+	 */
 	public void run() {
 		GridFSDBFile file = this.core.getQueryHandler().getFileByObjectId(this.fileId);
 		File f = new File("exampledocs/"+file.getFilename());

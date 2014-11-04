@@ -67,6 +67,11 @@ public class SolrHandler {
 		return results;
 	}
 	
+	/**
+	 * Call to the server to download a file from MongoDB to the server.
+	 * @param fileId - Id of the file
+	 * @return Possible console output
+	 */
 	public String transferToSolr(Object fileId) {
 		String result = "";
 		SSHClient ssh = new SSHClient();
